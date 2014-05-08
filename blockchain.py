@@ -45,9 +45,15 @@ class Wallet:
 			data["password"] = self.password1
 		if self.password2 != '':
 			data['second_password'] = self.password2
+
 		if self.verbose:
 			print("Url:%s\nMethod:%s\nData:%s" %(self.url,method,data))
+
 		response = requests.post(self.url + method, params=data)
+
+		if self.verbose:
+			print(response.url)
+
 		json = response.json
 		if 'error' in json:
 			raise RuntimeError('ERROR: ' + json['error'])
@@ -93,12 +99,16 @@ class Wallet:
 		data['amount'] = amount
 		data['fee'] = fee
 
+
 		if fromaddr:
 			data['from'] = fromaddr
+
 		if shared:
 			data['shared'] = 'true'
+
 		if note:
 			data['note'] = note
+
 		response = self.call('payment',data)
 
 		return response
@@ -106,8 +116,8 @@ class Wallet:
 
 	def sendManyPayment(self, recipients = {} , fromaddr = False, shared = False, fee = 0.0005, note = False):
 		data = {}
-		data['recipients'] = urllib.parse.urlencode(recipients)
-		data['fee'] = fee
+		data['recipients'] = recipients.__str__().replace("'",'"').strip().replace(' ','')
+		data['fee'] = str(fee)
 		if fromaddr:
 			data['from'] = fromaddr
 		if shared:
@@ -118,4 +128,5 @@ class Wallet:
 			data['note'] = note
 
 		response = self.call('sendmany',data)
+
 		return response
