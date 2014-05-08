@@ -22,6 +22,7 @@ class Wallet:
 	password1 	= ''
 	password2 	= ''
 	url 		= ''
+	verbose = True
 
 	def __init__(self, guid = '', password1 = '', password2 = ''):
 
@@ -44,6 +45,8 @@ class Wallet:
 			data["password"] = self.password1
 		if self.password2 != '':
 			data['second_password'] = self.password2
+		if self.verbose:
+			print("Url:%s\nMethod:%s\nData:%s" %(self.url,method,data))
 		response = requests.post(self.url + method, params=data)
 		json = response.json
 		if 'error' in json:
@@ -84,31 +87,35 @@ class Wallet:
 		return response['address']
 
 
-	def sendPayment(self, toaddr, amount , fromaddr = '', shared = 0, fee = 0.0000, note = ''):
+	def sendPayment(self, toaddr, amount , fromaddr = False, shared = False, fee = 0.0005, note = False):
 		data = {}
-		data['address'] = toaddr
+		data['to'] = toaddr
 		data['amount'] = amount
 		data['fee'] = fee
 
-
-		if fromaddr != '':
+		if fromaddr:
 			data['from'] = fromaddr
-
-		if shared == 1:
+		if shared:
 			data['shared'] = 'true'
-
-		if note != '':
+		if note:
 			data['note'] = note
-
 		response = self.call('payment',data)
 
-		return 
+		return response
 
 
-	def sendManyPayment(self, txs = {} , fromaddr = '', shared = 0, fee = 0.0000, note = ''):
-		responses = {}
+	def sendManyPayment(self, recipients = {} , fromaddr = False, shared = False, fee = 0.0005, note = False):
+		data = {}
+		data['recipients'] = urllib.parse.urlencode(recipients)
+		data['fee'] = fee
+		if fromaddr:
+			data['from'] = fromaddr
+		if shared:
+			data['shared'] = 'true'
+		else:
+			data['shared'] = 'false'
+		if note:
+			data['note'] = note
 
-		for tx in txs:
-			sendPayment(self, tx[0], tx[1] , fromaddr , shared , fee , note )
-
-		return 
+		response = self.call('sendmany',data)
+		return response
