@@ -111,7 +111,7 @@ class Wallet:
 	# Note: Payment amount is in Satoshi and it must be an integer number, cannot contain dots.
 	def sendManyPayment(self, recipients = {} , fromaddr = False, shared = False, fee = 20000, note = False):
 		data = {}
-		data['recipients'] == recipients.__str__()
+		data['recipients'] = recipients.__str__().replace("'",'"')
 		data['fee'] = str(fee)
 		if fromaddr:
 			data['from'] = fromaddr
