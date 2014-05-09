@@ -5,7 +5,7 @@
 #based work on   : Justin Allen
 #date            : 20140510
 #version         : 0.1.0
-#notes           :
+#notes           : Amounts are in Satoshi and always integers (without decimals)
 #license         : GNU GPLv3 http://www.gnu.org/licenses/
 #python_version  : 3  
 #==============================================================================
@@ -22,7 +22,7 @@ class Wallet:
 	password1 	= ''
 	password2 	= ''
 	url 		= ''
-	verbose = True
+	verbose = False
 
 	def __init__(self, guid = '', password1 = '', password2 = ''):
 
@@ -49,7 +49,7 @@ class Wallet:
 		if self.verbose:
 			print("Url:%s\nMethod:%s\nData:%s" %(self.url,method,data))
 
-		response = requests.post(self.url + method, params=data)
+		response = requests.get(self.url + method, params=data)
 
 		if self.verbose:
 			print(response.url)
@@ -93,30 +93,25 @@ class Wallet:
 		return response['address']
 
 
-	def sendPayment(self, toaddr, amount , fromaddr = False, shared = False, fee = 0.0005, note = False):
+	# Note: Payment amount is in Satoshi and it must be an integer number, cannot contain dots.
+	def sendPayment(self, toaddr, amount , fromaddr = False, shared = False, fee = 20000, note = False):
 		data = {}
 		data['to'] = toaddr
 		data['amount'] = amount
 		data['fee'] = fee
-
-
 		if fromaddr:
 			data['from'] = fromaddr
-
 		if shared:
 			data['shared'] = 'true'
-
 		if note:
 			data['note'] = note
-
 		response = self.call('payment',data)
-
 		return response
 
-
-	def sendManyPayment(self, recipients = {} , fromaddr = False, shared = False, fee = 0.0005, note = False):
+	# Note: Payment amount is in Satoshi and it must be an integer number, cannot contain dots.
+	def sendManyPayment(self, recipients = {} , fromaddr = False, shared = False, fee = 20000, note = False):
 		data = {}
-		data['recipients'] = recipients.__str__().replace("'",'"').strip().replace(' ','')
+		data['recipients'] == recipients.__str__()
 		data['fee'] = str(fee)
 		if fromaddr:
 			data['from'] = fromaddr
@@ -126,7 +121,5 @@ class Wallet:
 			data['shared'] = 'false'
 		if note:
 			data['note'] = note
-
 		response = self.call('sendmany',data)
-
 		return response
