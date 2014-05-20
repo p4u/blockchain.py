@@ -50,7 +50,6 @@ class Wallet:
 			print("Url:%s\nMethod:%s\nData:%s" %(self.url,method,data))
 
 		response = requests.get(self.url + method, params=data)
-
 		if self.verbose:
 			print(response.url)
 
@@ -72,11 +71,21 @@ class Wallet:
 		response = self.call('address_balance', data)
 		return response['balance']
 
-
 	def getAddresses(self, confirm = 4):
 		data = {"confirmations": confirm }
 		response = self.call('list', data)
 		return response['addresses']
+
+	def archiveAddress(self, addr):
+		data = {"address": addr }
+		response = self.call('archive_address', data)
+		return response['archived']
+
+	def unarchiveAddress(self, addr):
+		data = {"address": addr }
+		response = self.call('unarchive_address', data)
+		return response['active']
+
 
 
 	def newAddress(self, label = ''):
